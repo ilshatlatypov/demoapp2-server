@@ -2,10 +2,11 @@ package ru.jvdev.demoapp.server.rest;
 
 import java.net.URI;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,7 +31,7 @@ public class EmployeeRestService {
     @NonNull private final PasswordEncoder passwordEncoder;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<Void> create(@Validated @RequestBody EmployeeDTO employee) {
+    public ResponseEntity<Void> create(@Valid @RequestBody EmployeeDTO employee) {
         String username = employee.getUsername();
         String encodedPassword = passwordEncoder.encode(username);
 
