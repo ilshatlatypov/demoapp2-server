@@ -5,8 +5,10 @@ import java.net.URI;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -55,4 +57,15 @@ public class EmployeeRestService {
         return ResponseEntity.created(location).build();
     }
 
+    @RequestMapping(path = "/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<Void> update(@PathVariable int id, @Valid @RequestBody EmployeeDTO employee) {
+        Employee existing = employeeRepository.findOne(id);
+        if (existing == null) {
+            throw new ResourceNotFoundException();
+        }
+        existing.setFirstname(employee.getFirstname());
+        existing.setLastname(employee.getLastname());
+        employeeRepository.save(existing);
+        return ResponseEntity.ok().build();
+    }
 }
