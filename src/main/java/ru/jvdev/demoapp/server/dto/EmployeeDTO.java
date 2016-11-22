@@ -1,12 +1,11 @@
 package ru.jvdev.demoapp.server.dto;
 
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.validator.constraints.NotBlank;
 
 import lombok.Data;
 
-/**
- * Created by ilshat on 20.11.16.
- */
 @Data
 public class EmployeeDTO {
     private int id;
@@ -15,5 +14,6 @@ public class EmployeeDTO {
     @NotBlank
     private String lastname;
     @NotBlank
+    @Pattern(regexp = "[a-z]+", message = "{latin.lowercase.only}")
     private String username;
 }

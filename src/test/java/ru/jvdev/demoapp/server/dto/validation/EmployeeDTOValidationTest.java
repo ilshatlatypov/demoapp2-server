@@ -7,7 +7,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class EmployeeDTOValidationTest {
     @Before
     public void setUp() {
         ValidatorFactory vf = Validation.buildDefaultValidatorFactory();
-        this.validator = vf.getValidator();
+        validator = vf.getValidator();
 
     }
 
@@ -40,24 +40,40 @@ public class EmployeeDTOValidationTest {
     public void employeeWithBlankFirstname() {
         EmployeeDTO emp = getValid();
         emp.setFirstname("");
-        Set<ConstraintViolation<EmployeeDTO>> violations = this.validator.validate(emp);
-        assertEquals(1, violations.size());
+        Set<ConstraintViolation<EmployeeDTO>> violations = validator.validate(emp);
+        assertFalse(violations.isEmpty());
     }
 
     @Test
     public void employeeWithBlankLastname() {
         EmployeeDTO emp = getValid();
         emp.setLastname("");
-        Set<ConstraintViolation<EmployeeDTO>> violations = this.validator.validate(emp);
-        assertEquals(1, violations.size());
+        Set<ConstraintViolation<EmployeeDTO>> violations = validator.validate(emp);
+        assertFalse(violations.isEmpty());
     }
 
     @Test
     public void employeeWithBlankUsername() {
         EmployeeDTO emp = getValid();
         emp.setUsername("");
-        Set<ConstraintViolation<EmployeeDTO>> violations = this.validator.validate(emp);
-        assertEquals(1, violations.size());
+        Set<ConstraintViolation<EmployeeDTO>> violations = validator.validate(emp);
+        assertFalse(violations.isEmpty());
+    }
+
+    @Test
+    public void employeeWithNonLetterCharacterInUsername() {
+        EmployeeDTO emp = getValid();
+        emp.setUsername("user_name");
+        Set<ConstraintViolation<EmployeeDTO>> violations = validator.validate(emp);
+        assertFalse(violations.isEmpty());
+    }
+
+    @Test
+    public void employeeWithCapitalCharacterInUsername() {
+        EmployeeDTO emp = getValid();
+        emp.setUsername("userName");
+        Set<ConstraintViolation<EmployeeDTO>> violations = validator.validate(emp);
+        assertFalse(violations.isEmpty());
     }
 
     private EmployeeDTO getValid() {
