@@ -3,10 +3,13 @@ package ru.jvdev.demoapp.server.rest;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import org.junit.Before;
 import org.junit.Test;
@@ -106,6 +109,18 @@ public class EmployeeRestServiceTest {
         String employeeForUpdateJson = json(employeeForUpdate);
         mockMvc.perform(updateEmployeeRequest(employeeId, employeeForUpdateJson))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getSingle() throws Exception {
+        int employeeId = createEmployee("Michael", "Scott", "mscott");
+
+        mockMvc.perform(get("/rest/employees/" + employeeId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", is(employeeId)))
+            .andExpect(jsonPath("$.firstname", is("Michael")))
+            .andExpect(jsonPath("$.lastname", is("Scott")))
+            .andExpect(jsonPath("$.username", is("mscott")));
     }
 
     private static MockHttpServletRequestBuilder createEmployeeRequest(String employeeJson) {

@@ -4,5 +4,6 @@
         "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 <suppressions>
     <suppress checks="HideUtilityClassConstructor" files="ru.jvdev.demoapp.server.Application"/>
+    <suppress checks="HideUtilityClassConstructor" files="ru.jvdev.demoapp.server.dto.*"/>
     <suppress checks="MultipleStringLiterals" files="ru.jvdev.demoapp.server.*.*Test"/>
 </suppressions>

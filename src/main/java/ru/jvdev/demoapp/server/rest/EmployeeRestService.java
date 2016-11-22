@@ -82,4 +82,14 @@ public class EmployeeRestService {
         employeeRepository.save(existing);
         return ResponseEntity.ok().build();
     }
+
+    @RequestMapping(path = "{id}", method = RequestMethod.GET)
+    public ResponseEntity<EmployeeDTO> get(@PathVariable int id) {
+        Employee employee = employeeRepository.getOne(id);
+        if (employee == null) {
+            throw new ResourceNotFoundException();
+        }
+        EmployeeDTO dto = EmployeeDTO.fromEmployee(employee);
+        return ResponseEntity.ok(dto);
+    }
 }
