@@ -20,6 +20,7 @@ import org.springframework.mock.http.MockHttpOutputMessage;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
@@ -66,98 +67,76 @@ public class EmployeeRestServiceTest {
 
     @Test
     public void create() throws Exception {
-        EmployeeDTO emp = new EmployeeDTO();
-        emp.setFirstname("Firstname");
-        emp.setLastname("Lastname");
-        emp.setUsername("username");
-
-        String empJson = json(emp);
-
-        mockMvc.perform(post("/rest/employees").contentType(MediaType.APPLICATION_JSON).content(empJson))
+        EmployeeDTO employee = buildEmployeeDTO("Firstname", "Lastname", "username");
+        String employeeJson = json(employee);
+        mockMvc.perform(createEmployeeRequest(employeeJson))
             .andExpect(status().isCreated());
     }
 
     @Test
     public void createFailsIfUsernameNotUnique() throws Exception {
-        User user = new User();
-        user.setUsername("mscott");
-        user.setPassword("mscott");
-        user.setEnabled(true);
-        user.setRole(Role.WORKER);
+        createEmployee("Michael", "Scott", "mscott");
 
-        Employee employee = new Employee();
-        employee.setFirstname("Michael");
-        employee.setLastname("Scott");
-        employee.setUser(user);
-
-        employeeRepository.save(employee);
-
-        EmployeeDTO emp = new EmployeeDTO();
-        emp.setFirstname("James");
-        emp.setLastname("Halpert");
-        emp.setUsername("mscott");
-
-        String empJson = json(emp);
-
-        mockMvc.perform(post("/rest/employees").contentType(MediaType.APPLICATION_JSON).content(empJson))
+        EmployeeDTO employee = buildEmployeeDTO("James", "Halpert", "mscott");
+        String employeeJson = json(employee);
+        mockMvc.perform(createEmployeeRequest(employeeJson))
             .andExpect(status().isConflict());
     }
 
     @Test
     @Transactional
     public void update() throws Exception {
-        User user = new User();
-        user.setUsername("username");
-        user.setPassword("password");
-        user.setEnabled(true);
-        user.setRole(Role.WORKER);
+        int employeeId = createEmployee("Michael", "Scott", "mscott");
 
-        Employee emp = new Employee();
-        emp.setFirstname("Firstname");
-        emp.setLastname("Lastname");
-        emp.setUser(user);
-
-        int empId = employeeRepository.save(emp).getId();
-
-        EmployeeDTO empForUpdate = new EmployeeDTO();
-        empForUpdate.setFirstname("Firstname - Updated");
-        empForUpdate.setLastname("Lastname - Updated");
-        empForUpdate.setUsername("username");
-
-        String empForUpdateJson = json(empForUpdate);
-
-        mockMvc.perform(put("/rest/employees/" + empId).contentType(MediaType.APPLICATION_JSON).content(empForUpdateJson))
+        EmployeeDTO employeeForUpdate = buildEmployeeDTO("Mike", "Scotty", "mscott");
+        String employeeForUpdateJson = json(employeeForUpdate);
+        mockMvc.perform(updateEmployeeRequest(employeeId, employeeForUpdateJson))
             .andExpect(status().isOk());
 
-        Employee persisted = employeeRepository.getOne(empId);
-        assertEquals("Firstname - Updated", persisted.getFirstname());
-        assertEquals("Lastname - Updated", persisted.getLastname());
+        Employee persisted = employeeRepository.getOne(employeeId);
+        assertEquals("Mike", persisted.getFirstname());
+        assertEquals("Scotty", persisted.getLastname());
     }
 
     @Test
     public void updateFailsOnUsernameModificationAttempt() throws Exception {
+        int employeeId = createEmployee("Michael", "Scott", "mscott");
+
+        EmployeeDTO employeeForUpdate = buildEmployeeDTO("Michael", "Scott", "michael");
+        String employeeForUpdateJson = json(employeeForUpdate);
+        mockMvc.perform(updateEmployeeRequest(employeeId, employeeForUpdateJson))
+            .andExpect(status().isBadRequest());
+    }
+
+    private static MockHttpServletRequestBuilder createEmployeeRequest(String employeeJson) {
+        return post("/rest/employees").contentType(MediaType.APPLICATION_JSON).content(employeeJson);
+    }
+
+    private static MockHttpServletRequestBuilder updateEmployeeRequest(int id, String employeeForUpdateJson) {
+        return put("/rest/employees/" + id).contentType(MediaType.APPLICATION_JSON).content(employeeForUpdateJson);
+    }
+
+    private int createEmployee(String firstname, String lastname, String username) {
         User user = new User();
-        user.setUsername("mscott");
-        user.setPassword("mscott");
+        user.setUsername(username);
+        user.setPassword(username);
         user.setEnabled(true);
         user.setRole(Role.WORKER);
 
         Employee emp = new Employee();
-        emp.setFirstname("Michael");
-        emp.setLastname("Scott");
+        emp.setFirstname(firstname);
+        emp.setLastname(lastname);
         emp.setUser(user);
 
-        int empId = employeeRepository.save(emp).getId();
+        return employeeRepository.save(emp).getId();
+    }
 
-        EmployeeDTO empForUpdate = new EmployeeDTO();
-        empForUpdate.setFirstname("Michael");
-        empForUpdate.setLastname("Scott");
-        empForUpdate.setUsername("michael");
-
-        String empForUpdateJson = json(empForUpdate);
-
-        mockMvc.perform(put("/rest/employees/" + empId).contentType(MediaType.APPLICATION_JSON).content(empForUpdateJson))
-            .andExpect(status().isBadRequest());
+    private static EmployeeDTO buildEmployeeDTO(String firstname, String lastname, String username) {
+        EmployeeDTO emp = new EmployeeDTO();
+        emp.setFirstname(firstname);
+        emp.setLastname(lastname);
+        emp.setUsername(username);
+        return emp;
     }
 
     @SuppressWarnings("unchecked")
