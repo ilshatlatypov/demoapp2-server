@@ -100,7 +100,7 @@ public class EmployeeRestServiceTest {
         String empJson = json(emp);
 
         mockMvc.perform(post("/rest/employees").contentType(MediaType.APPLICATION_JSON).content(empJson))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isConflict());
     }
 
     @Test
@@ -132,6 +132,32 @@ public class EmployeeRestServiceTest {
         Employee persisted = employeeRepository.getOne(empId);
         assertEquals("Firstname - Updated", persisted.getFirstname());
         assertEquals("Lastname - Updated", persisted.getLastname());
+    }
+
+    @Test
+    public void updateFailsOnUsernameModificationAttempt() throws Exception {
+        User user = new User();
+        user.setUsername("mscott");
+        user.setPassword("mscott");
+        user.setEnabled(true);
+        user.setRole(Role.WORKER);
+
+        Employee emp = new Employee();
+        emp.setFirstname("Michael");
+        emp.setLastname("Scott");
+        emp.setUser(user);
+
+        int empId = employeeRepository.save(emp).getId();
+
+        EmployeeDTO empForUpdate = new EmployeeDTO();
+        empForUpdate.setFirstname("Michael");
+        empForUpdate.setLastname("Scott");
+        empForUpdate.setUsername("michael");
+
+        String empForUpdateJson = json(empForUpdate);
+
+        mockMvc.perform(put("/rest/employees/" + empId).contentType(MediaType.APPLICATION_JSON).content(empForUpdateJson))
+            .andExpect(status().isBadRequest());
     }
 
     @SuppressWarnings("unchecked")

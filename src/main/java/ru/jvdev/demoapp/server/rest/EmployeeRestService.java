@@ -21,6 +21,8 @@ import ru.jvdev.demoapp.server.model.Role;
 import ru.jvdev.demoapp.server.model.User;
 import ru.jvdev.demoapp.server.repository.EmployeeRepository;
 import ru.jvdev.demoapp.server.repository.UserRepository;
+import ru.jvdev.demoapp.server.rest.exception.UsernameConflictException;
+import ru.jvdev.demoapp.server.rest.exception.UsernameModificationException;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +41,7 @@ public class EmployeeRestService {
         String username = employee.getUsername();
         User userWithSameUsername = userRepository.getByUsername(username);
         if (userWithSameUsername != null) {
-            return ResponseEntity.badRequest().build();
+            throw new UsernameConflictException();
         }
 
         User user = new User();
@@ -62,12 +64,19 @@ public class EmployeeRestService {
         return ResponseEntity.created(location).build();
     }
 
-    @RequestMapping(path = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(path = "{id}", method = RequestMethod.PUT)
     public ResponseEntity<Void> update(@PathVariable int id, @Valid @RequestBody EmployeeDTO employee) {
         Employee existing = employeeRepository.findOne(id);
         if (existing == null) {
             throw new ResourceNotFoundException();
         }
+
+        String existingUsername = existing.getUser().getUsername();
+        String newUsername = employee.getUsername();
+        if (!existingUsername.equals(newUsername)) {
+            throw new UsernameModificationException();
+        }
+
         existing.setFirstname(employee.getFirstname());
         existing.setLastname(employee.getLastname());
         employeeRepository.save(existing);
