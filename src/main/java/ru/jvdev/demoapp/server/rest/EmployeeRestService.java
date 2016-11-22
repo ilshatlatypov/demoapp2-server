@@ -85,11 +85,20 @@ public class EmployeeRestService {
 
     @RequestMapping(path = "{id}", method = RequestMethod.GET)
     public ResponseEntity<EmployeeDTO> get(@PathVariable int id) {
-        Employee employee = employeeRepository.getOne(id);
+        Employee employee = employeeRepository.findOne(id);
         if (employee == null) {
             throw new ResourceNotFoundException();
         }
         EmployeeDTO dto = EmployeeDTO.fromEmployee(employee);
         return ResponseEntity.ok(dto);
+    }
+
+    @RequestMapping(path = "{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<Void> delete(@PathVariable int id) {
+        if (!employeeRepository.exists(id)) {
+            throw new ResourceNotFoundException();
+        }
+        employeeRepository.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
