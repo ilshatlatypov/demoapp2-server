@@ -61,6 +61,7 @@ public class EmployeeRestServiceTest {
     @Before
     public void setUp() throws Exception {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        employeeRepository.deleteAllInBatch();
     }
 
     @Test
@@ -74,6 +75,32 @@ public class EmployeeRestServiceTest {
 
         mockMvc.perform(post("/rest/employees").contentType(MediaType.APPLICATION_JSON).content(empJson))
             .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void createFailsIfUsernameNotUnique() throws Exception {
+        User user = new User();
+        user.setUsername("mscott");
+        user.setPassword("mscott");
+        user.setEnabled(true);
+        user.setRole(Role.WORKER);
+
+        Employee employee = new Employee();
+        employee.setFirstname("Michael");
+        employee.setLastname("Scott");
+        employee.setUser(user);
+
+        employeeRepository.save(employee);
+
+        EmployeeDTO emp = new EmployeeDTO();
+        emp.setFirstname("James");
+        emp.setLastname("Halpert");
+        emp.setUsername("mscott");
+
+        String empJson = json(emp);
+
+        mockMvc.perform(post("/rest/employees").contentType(MediaType.APPLICATION_JSON).content(empJson))
+            .andExpect(status().isBadRequest());
     }
 
     @Test

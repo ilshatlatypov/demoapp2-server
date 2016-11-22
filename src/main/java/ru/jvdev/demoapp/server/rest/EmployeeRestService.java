@@ -20,6 +20,7 @@ import ru.jvdev.demoapp.server.model.Employee;
 import ru.jvdev.demoapp.server.model.Role;
 import ru.jvdev.demoapp.server.model.User;
 import ru.jvdev.demoapp.server.repository.EmployeeRepository;
+import ru.jvdev.demoapp.server.repository.UserRepository;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -30,16 +31,20 @@ import lombok.RequiredArgsConstructor;
 public class EmployeeRestService {
 
     @NonNull private final EmployeeRepository employeeRepository;
+    @NonNull private final UserRepository userRepository;
     @NonNull private final PasswordEncoder passwordEncoder;
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<Void> create(@Valid @RequestBody EmployeeDTO employee) {
         String username = employee.getUsername();
-        String encodedPassword = passwordEncoder.encode(username);
+        User userWithSameUsername = userRepository.getByUsername(username);
+        if (userWithSameUsername != null) {
+            return ResponseEntity.badRequest().build();
+        }
 
         User user = new User();
         user.setUsername(username);
-        user.setPassword(encodedPassword);
+        user.setPassword(passwordEncoder.encode(username));
         user.setEnabled(true);
         user.setRole(Role.WORKER);
 
