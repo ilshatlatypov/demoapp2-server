@@ -32,8 +32,8 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        String username1 = "user1";
-        String username2 = "user2";
+        String username1 = "userone";
+        String username2 = "usertwo";
 
         User user1 = new User();
         user1.setUsername(username1);
