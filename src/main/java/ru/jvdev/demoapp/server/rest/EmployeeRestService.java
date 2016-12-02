@@ -1,12 +1,15 @@
 package ru.jvdev.demoapp.server.rest;
 
 import java.net.URI;
+import java.security.Principal;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import ru.jvdev.demoapp.server.dto.EmployeeDTO;
+import ru.jvdev.demoapp.server.dto.PasswordDTO;
 import ru.jvdev.demoapp.server.model.Employee;
 import ru.jvdev.demoapp.server.model.Role;
 import ru.jvdev.demoapp.server.model.User;
@@ -23,6 +27,7 @@ import ru.jvdev.demoapp.server.repository.EmployeeRepository;
 import ru.jvdev.demoapp.server.repository.UserRepository;
 import ru.jvdev.demoapp.server.rest.exception.UsernameConflictException;
 import ru.jvdev.demoapp.server.rest.exception.UsernameModificationException;
+import ru.jvdev.demoapp.server.service.CurrentUser;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -106,5 +111,17 @@ public class EmployeeRestService {
     public ResponseEntity<Void> isUsernameUsed(@PathVariable String username) {
         User user = userRepository.getByUsername(username);
         return user != null ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
+    @RequestMapping(path = "changePassword", method = RequestMethod.POST)
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal Principal principal, @Valid @RequestBody PasswordDTO password) {
+        CurrentUser activeUser = (CurrentUser) ((Authentication) principal).getPrincipal();
+        User user = activeUser.getUser();
+
+        String encodedPassword = passwordEncoder.encode(password.getValue());
+        user.setPassword(encodedPassword);
+
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
     }
 }
