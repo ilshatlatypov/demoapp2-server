@@ -9,4 +9,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @ResponseStatus(code = HttpStatus.CONFLICT, reason = "Username must be unique")
 public class UsernameConflictException extends RuntimeException {
+    private String rejectedValue;
+
+    public UsernameConflictException(String rejectedValue) {
+        this.rejectedValue = rejectedValue;
+    }
+
+    public String getRejectedValue() {
+        return rejectedValue;
+    }
 }

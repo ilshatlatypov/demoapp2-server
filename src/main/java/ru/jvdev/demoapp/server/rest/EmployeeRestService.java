@@ -41,7 +41,7 @@ public class EmployeeRestService {
         String username = employee.getUsername();
         User userWithSameUsername = userRepository.getByUsername(username);
         if (userWithSameUsername != null) {
-            throw new UsernameConflictException();
+            throw new UsernameConflictException(username);
         }
 
         User user = new User();
@@ -74,7 +74,7 @@ public class EmployeeRestService {
         String existingUsername = existing.getUser().getUsername();
         String newUsername = employee.getUsername();
         if (!existingUsername.equals(newUsername)) {
-            throw new UsernameModificationException();
+            throw new UsernameModificationException(newUsername);
         }
 
         existing.setFirstname(employee.getFirstname());
