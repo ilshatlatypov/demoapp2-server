@@ -101,4 +101,10 @@ public class EmployeeRestService {
         employeeRepository.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @RequestMapping(path = "isUsernameUsed/{username}")
+    public ResponseEntity<Void> isUsernameUsed(@PathVariable String username) {
+        User user = userRepository.getByUsername(username);
+        return user != null ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
 }

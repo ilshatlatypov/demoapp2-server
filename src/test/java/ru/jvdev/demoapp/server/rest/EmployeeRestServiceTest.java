@@ -150,6 +150,21 @@ public class EmployeeRestServiceTest {
             .andExpect(status().isNotFound());
     }
 
+    @Test
+    public void testUsernameUsed() throws Exception {
+        String username = "mscott";
+        createEmployee("Michael", "Scott", username);
+        mockMvc.perform(get("/rest/employees/isUsernameUsed/" + username))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testUsernameNotUsed() throws Exception {
+        String username = "notused";
+        mockMvc.perform(get("/rest/employees/isUsernameUsed/" + username))
+            .andExpect(status().isNotFound());
+    }
+
     private static MockHttpServletRequestBuilder createEmployeeRequest(String employeeJson) {
         return post("/rest/employees").contentType(MediaType.APPLICATION_JSON).content(employeeJson);
     }
