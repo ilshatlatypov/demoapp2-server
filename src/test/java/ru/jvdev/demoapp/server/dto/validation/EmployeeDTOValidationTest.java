@@ -7,6 +7,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -72,6 +73,23 @@ public class EmployeeDTOValidationTest {
     public void employeeWithCapitalCharacterInUsername() {
         EmployeeDTO emp = getValid();
         emp.setUsername("userName");
+        Set<ConstraintViolation<EmployeeDTO>> violations = validator.validate(emp);
+        assertFalse(violations.isEmpty());
+    }
+
+    @Test
+    public void employeeWithTooShortUsername() throws Exception {
+        EmployeeDTO emp = getValid();
+        emp.setUsername("us");
+        Set<ConstraintViolation<EmployeeDTO>> violations = validator.validate(emp);
+        assertFalse(violations.isEmpty());
+    }
+
+    @Test
+    public void employeeWithTooLongUsername() throws Exception {
+        EmployeeDTO emp = getValid();
+        emp.setUsername("usernameusernameusern");
+        assertEquals(21, emp.getUsername().length());
         Set<ConstraintViolation<EmployeeDTO>> violations = validator.validate(emp);
         assertFalse(violations.isEmpty());
     }

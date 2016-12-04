@@ -2,6 +2,7 @@ package ru.jvdev.demoapp.server.dto;
 
 import javax.validation.constraints.Pattern;
 
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
 import ru.jvdev.demoapp.server.model.Employee;
@@ -16,6 +17,7 @@ public class EmployeeDTO {
     @NotBlank
     private String lastname;
     @NotBlank
+    @Length(min = 3, max = 20)
     @Pattern(regexp = "[a-z]+", message = "{latin.lowercase.only}")
     private String username;
 
