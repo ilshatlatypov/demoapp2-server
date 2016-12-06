@@ -154,15 +154,15 @@ public class EmployeeRestServiceTest {
     public void testUsernameUsed() throws Exception {
         String username = "mscott";
         createEmployee("Michael", "Scott", username);
-        mockMvc.perform(get("/rest/employees/isUsernameUsed/" + username))
-            .andExpect(status().isOk());
+        mockMvc.perform(get("/rest/employees/isUsernameAvailable/" + username))
+            .andExpect(status().isConflict());
     }
 
     @Test
-    public void testUsernameNotUsed() throws Exception {
+    public void testUsernameAvailable() throws Exception {
         String username = "notused";
-        mockMvc.perform(get("/rest/employees/isUsernameUsed/" + username))
-            .andExpect(status().isNotFound());
+        mockMvc.perform(get("/rest/employees/isUsernameAvailable/" + username))
+            .andExpect(status().isOk());
     }
 
     private static MockHttpServletRequestBuilder createEmployeeRequest(String employeeJson) {

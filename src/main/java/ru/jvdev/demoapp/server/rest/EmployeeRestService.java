@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -107,10 +108,10 @@ public class EmployeeRestService {
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(path = "isUsernameUsed/{username}")
+    @RequestMapping(path = "isUsernameAvailable/{username}")
     public ResponseEntity<Void> isUsernameUsed(@PathVariable String username) {
         User user = userRepository.getByUsername(username);
-        return user != null ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return user == null ? ResponseEntity.ok().build() : ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
     @RequestMapping(path = "changePassword", method = RequestMethod.POST)
