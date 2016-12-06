@@ -10,8 +10,11 @@ import lombok.Setter;
  * @since 02.12.2016
  */
 public class PasswordDTO {
+    private static final int MIN_LENGTH = 3;
+    private static final int MAX_LENGTH = 20;
+
     @Getter
     @Setter
-    @Length(min = 3)
+    @Length(min = MIN_LENGTH, max = MAX_LENGTH)
     private String value;
 }

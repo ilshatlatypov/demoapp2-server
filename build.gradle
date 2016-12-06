@@ -31,6 +31,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.xerial:sqlite-jdbc:3.8.11.2")
     compile("org.projectlombok:lombok:1.16.10")
+    compile("com.google.code.findbugs:annotations:3.0.1u2")
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("com.h2database:h2")
@@ -46,6 +47,7 @@ checkstyle {
 }
 
 tasks.withType(FindBugs) {
+    excludeFilter file("config/findbugs/exclude.xml")
     reports {
         xml.enabled = false
         html.enabled = true

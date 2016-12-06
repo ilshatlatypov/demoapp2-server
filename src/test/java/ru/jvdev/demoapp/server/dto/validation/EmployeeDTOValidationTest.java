@@ -7,7 +7,6 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -89,7 +88,7 @@ public class EmployeeDTOValidationTest {
     public void employeeWithTooLongUsername() throws Exception {
         EmployeeDTO emp = getValid();
         emp.setUsername("usernameusernameusern");
-        assertEquals(21, emp.getUsername().length());
+        assertTrue(emp.getUsername().length() > EmployeeDTO.MAX_USERNAME_LENGTH);
         Set<ConstraintViolation<EmployeeDTO>> violations = validator.validate(emp);
         assertFalse(violations.isEmpty());
     }

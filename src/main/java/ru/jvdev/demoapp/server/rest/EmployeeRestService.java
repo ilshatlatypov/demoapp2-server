@@ -114,7 +114,8 @@ public class EmployeeRestService {
     }
 
     @RequestMapping(path = "changePassword", method = RequestMethod.POST)
-    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal Principal principal, @Valid @RequestBody PasswordDTO password) {
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal Principal principal,
+                                               @Valid @RequestBody PasswordDTO password) {
         CurrentUser activeUser = (CurrentUser) ((Authentication) principal).getPrincipal();
         User user = activeUser.getUser();
 

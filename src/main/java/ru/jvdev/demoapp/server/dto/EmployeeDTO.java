@@ -11,13 +11,16 @@ import lombok.Data;
 
 @Data
 public class EmployeeDTO {
+    public static final int MIN_USERNAME_LENGTH = 3;
+    public static final int MAX_USERNAME_LENGTH = 20;
+
     private int id;
     @NotBlank
     private String firstname;
     @NotBlank
     private String lastname;
     @NotBlank
-    @Length(min = 3, max = 20)
+    @Length(min = MIN_USERNAME_LENGTH, max = MAX_USERNAME_LENGTH)
     @Pattern(regexp = "[a-z]+", message = "{latin.lowercase.only}")
     private String username;
 
