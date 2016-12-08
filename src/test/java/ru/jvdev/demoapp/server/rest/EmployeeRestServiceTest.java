@@ -31,8 +31,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import ru.jvdev.demoapp.server.dto.EmployeeDTO;
 import ru.jvdev.demoapp.server.model.Employee;
-import ru.jvdev.demoapp.server.model.Role;
-import ru.jvdev.demoapp.server.model.User;
 import ru.jvdev.demoapp.server.repository.EmployeeRepository;
 import ru.jvdev.demoapp.server.repository.UserRepository;
 
@@ -51,6 +49,8 @@ public class EmployeeRestServiceTest {
     private EmployeeRepository employeeRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TestDataCreator creator;
 
     private MockMvc mockMvc;
 
@@ -82,7 +82,7 @@ public class EmployeeRestServiceTest {
 
     @Test
     public void createFailsIfUsernameNotUnique() throws Exception {
-        createEmployee("Michael", "Scott", "mscott");
+        creator.createEmployee("Michael", "Scott", "mscott");
 
         EmployeeDTO employee = buildEmployeeDTO("James", "Halpert", "mscott");
         String employeeJson = json(employee);
@@ -92,7 +92,7 @@ public class EmployeeRestServiceTest {
 
     @Test
     public void update() throws Exception {
-        int employeeId = createEmployee("Michael", "Scott", "mscott");
+        int employeeId = creator.createEmployee("Michael", "Scott", "mscott");
 
         EmployeeDTO employeeForUpdate = buildEmployeeDTO("Mike", "Scotty", "mscott");
         String employeeForUpdateJson = json(employeeForUpdate);
@@ -106,7 +106,7 @@ public class EmployeeRestServiceTest {
 
     @Test
     public void updateFailsOnUsernameModificationAttempt() throws Exception {
-        int employeeId = createEmployee("Michael", "Scott", "mscott");
+        int employeeId = creator.createEmployee("Michael", "Scott", "mscott");
 
         EmployeeDTO employeeForUpdate = buildEmployeeDTO("Michael", "Scott", "michael");
         String employeeForUpdateJson = json(employeeForUpdate);
@@ -116,7 +116,7 @@ public class EmployeeRestServiceTest {
 
     @Test
     public void getEmployee() throws Exception {
-        int employeeId = createEmployee("Michael", "Scott", "mscott");
+        int employeeId = creator.createEmployee("Michael", "Scott", "mscott");
 
         mockMvc.perform(get("/rest/employees/" + employeeId))
             .andExpect(status().isOk())
@@ -136,7 +136,7 @@ public class EmployeeRestServiceTest {
 
     @Test
     public void deleteEmployee() throws Exception {
-        int employeeId = createEmployee("Michael", "Scott", "mscott");
+        int employeeId = creator.createEmployee("Michael", "Scott", "mscott");
         mockMvc.perform(delete("/rest/employees/" + employeeId))
             .andExpect(status().isNoContent());
         assertFalse(employeeRepository.exists(employeeId));
@@ -153,7 +153,7 @@ public class EmployeeRestServiceTest {
     @Test
     public void testUsernameUsed() throws Exception {
         String username = "mscott";
-        createEmployee("Michael", "Scott", username);
+        creator.createEmployee("Michael", "Scott", username);
         mockMvc.perform(get("/rest/employees/isUsernameAvailable/" + username))
             .andExpect(status().isConflict());
     }
@@ -171,21 +171,6 @@ public class EmployeeRestServiceTest {
 
     private static MockHttpServletRequestBuilder updateEmployeeRequest(int id, String employeeForUpdateJson) {
         return put("/rest/employees/" + id).contentType(MediaType.APPLICATION_JSON).content(employeeForUpdateJson);
-    }
-
-    private int createEmployee(String firstname, String lastname, String username) {
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(username);
-        user.setEnabled(true);
-        user.setRole(Role.WORKER);
-
-        Employee emp = new Employee();
-        emp.setFirstname(firstname);
-        emp.setLastname(lastname);
-        emp.setUser(user);
-
-        return employeeRepository.save(emp).getId();
     }
 
     private static EmployeeDTO buildEmployeeDTO(String firstname, String lastname, String username) {

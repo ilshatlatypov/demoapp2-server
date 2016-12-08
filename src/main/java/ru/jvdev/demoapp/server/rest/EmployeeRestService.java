@@ -126,4 +126,13 @@ public class EmployeeRestService {
         userRepository.save(user);
         return ResponseEntity.ok().build();
     }
+
+    @RequestMapping(path = "profile", method = RequestMethod.GET)
+    public ResponseEntity<EmployeeDTO> getProfile(@AuthenticationPrincipal Principal principal) {
+        CurrentUser activeUser = (CurrentUser) ((Authentication) principal).getPrincipal();
+        User user = activeUser.getUser();
+        Employee employee = employeeRepository.getByUser(user);
+        EmployeeDTO dto = EmployeeDTO.fromEmployee(employee);
+        return ResponseEntity.ok(dto);
+    }
 }
