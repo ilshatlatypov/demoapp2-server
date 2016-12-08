@@ -1,6 +1,7 @@
 package ru.jvdev.demoapp.server.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import ru.jvdev.demoapp.server.model.Employee;
@@ -17,11 +18,24 @@ class TestDataCreator {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    int createEmployee(String firstname, String lastname, String username, String password) {
+        Employee emp = buildEmployee(firstname, lastname, username, password);
+        return employeeRepository.save(emp).getId();
+    }
 
     int createEmployee(String firstname, String lastname, String username) {
+        String anyPassword = "anyPassword";
+        Employee emp = buildEmployee(firstname, lastname, username, anyPassword);
+        return employeeRepository.save(emp).getId();
+    }
+
+    private Employee buildEmployee(String firstname, String lastname, String username, String password) {
         User user = new User();
         user.setUsername(username);
-        user.setPassword(username);
+        user.setPassword(passwordEncoder.encode(password));
         user.setEnabled(true);
         user.setRole(Role.WORKER);
 
@@ -29,7 +43,6 @@ class TestDataCreator {
         emp.setFirstname(firstname);
         emp.setLastname(lastname);
         emp.setUser(user);
-
-        return employeeRepository.save(emp).getId();
+        return emp;
     }
 }

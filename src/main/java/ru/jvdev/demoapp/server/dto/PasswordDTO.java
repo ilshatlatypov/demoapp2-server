@@ -1,6 +1,7 @@
 package ru.jvdev.demoapp.server.dto;
 
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotBlank;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,10 @@ public class PasswordDTO {
 
     @Getter
     @Setter
+    @NotBlank
+    private String currentValue;
+    @Getter
+    @Setter
     @Length(min = MIN_LENGTH, max = MAX_LENGTH)
-    private String value;
+    private String newValue;
 }

@@ -48,6 +48,16 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         return handleExceptionInternal(ex, errorMessage, new HttpHeaders(), status, request);
     }
 
+    @ExceptionHandler({PasswordNotMatchException.class})
+    public final ResponseEntity<Object> handleException(PasswordNotMatchException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ErrorMessage errorMessage = new ErrorMessage();
+        errorMessage.setHttpStatus(status);
+        errorMessage.setMessage("Wrong password");
+        errorMessage.addFieldError("currentValue", ex.getRejectedValue(), "Password does not not match");
+        return handleExceptionInternal(ex, errorMessage, new HttpHeaders(), status, request);
+    }
+
     interface GeneralMessages {
         String INVALID = "Validation failed";
         String CONFLICT = "Conflicting record found";

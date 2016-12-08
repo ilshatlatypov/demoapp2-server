@@ -26,6 +26,7 @@ import ru.jvdev.demoapp.server.model.Role;
 import ru.jvdev.demoapp.server.model.User;
 import ru.jvdev.demoapp.server.repository.EmployeeRepository;
 import ru.jvdev.demoapp.server.repository.UserRepository;
+import ru.jvdev.demoapp.server.rest.exception.PasswordNotMatchException;
 import ru.jvdev.demoapp.server.rest.exception.UsernameConflictException;
 import ru.jvdev.demoapp.server.rest.exception.UsernameModificationException;
 import ru.jvdev.demoapp.server.service.CurrentUser;
@@ -117,20 +118,34 @@ public class EmployeeRestService {
     @RequestMapping(path = "changePassword", method = RequestMethod.POST)
     public ResponseEntity<Void> changePassword(@AuthenticationPrincipal Principal principal,
                                                @Valid @RequestBody PasswordDTO password) {
-        CurrentUser activeUser = (CurrentUser) ((Authentication) principal).getPrincipal();
-        User user = activeUser.getUser();
-
-        String encodedPassword = passwordEncoder.encode(password.getValue());
-        user.setPassword(encodedPassword);
-
-        userRepository.save(user);
+        User user = getActiveUser(principal);
+        verifyPasswordMatch(user, password.getCurrentValue());
+        setNewPasswordAndSave(user, password.getNewValue());
         return ResponseEntity.ok().build();
+    }
+
+    private User getActiveUser(Principal principal) {
+        CurrentUser activeUser = (CurrentUser) ((Authentication) principal).getPrincipal();
+        return activeUser.getUser();
+    }
+
+    private void verifyPasswordMatch(User user, String password) {
+        String actualValue = user.getPassword();
+        boolean isPasswordMatches = passwordEncoder.matches(password, actualValue);
+        if (!isPasswordMatches) {
+            throw new PasswordNotMatchException(password);
+        }
+    }
+
+    private void setNewPasswordAndSave(User user, String password) {
+        String encodedPassword = passwordEncoder.encode(password);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
     }
 
     @RequestMapping(path = "profile", method = RequestMethod.GET)
     public ResponseEntity<EmployeeDTO> getProfile(@AuthenticationPrincipal Principal principal) {
-        CurrentUser activeUser = (CurrentUser) ((Authentication) principal).getPrincipal();
-        User user = activeUser.getUser();
+        User user = getActiveUser(principal);
         Employee employee = employeeRepository.getByUser(user);
         EmployeeDTO dto = EmployeeDTO.fromEmployee(employee);
         return ResponseEntity.ok(dto);
