@@ -23,7 +23,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         errorMessage.setHttpStatus(status);
         errorMessage.setMessage(GeneralMessages.INVALID);
         for (FieldError fe : ex.getBindingResult().getFieldErrors()) {
-            errorMessage.addFieldError(fe.getField(), fe.getRejectedValue(), fe.getDefaultMessage());
+            errorMessage.addFieldError(fe.getField(), fe.getRejectedValue(), fe.getDefaultMessage(), fe.getCode());
         }
         return handleExceptionInternal(ex, errorMessage, headers, status, request);
     }
@@ -34,7 +34,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         ErrorMessage errorMessage = new ErrorMessage();
         errorMessage.setHttpStatus(status);
         errorMessage.setMessage(GeneralMessages.INVALID);
-        errorMessage.addFieldError(USERNAME, ex.getRejectedValue(), "Username modification is not allowed");
+        errorMessage.addFieldError(USERNAME, ex.getRejectedValue(), "Username modification is not allowed",
+            FieldErrorCodes.NOT_MODIFIABLE);
         return handleExceptionInternal(ex, errorMessage, new HttpHeaders(), status, request);
     }
 
@@ -44,7 +45,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         ErrorMessage errorMessage = new ErrorMessage();
         errorMessage.setHttpStatus(status);
         errorMessage.setMessage(GeneralMessages.CONFLICT);
-        errorMessage.addFieldError(USERNAME, ex.getRejectedValue(), "Username must be unique");
+        errorMessage.addFieldError(USERNAME, ex.getRejectedValue(), "Username must be unique", FieldErrorCodes.UNIQUE);
         return handleExceptionInternal(ex, errorMessage, new HttpHeaders(), status, request);
     }
 
@@ -54,7 +55,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         ErrorMessage errorMessage = new ErrorMessage();
         errorMessage.setHttpStatus(status);
         errorMessage.setMessage("Wrong password");
-        errorMessage.addFieldError("currentValue", ex.getRejectedValue(), "Password does not not match");
+        errorMessage.addFieldError("currentValue", ex.getRejectedValue(), "Password does not match",
+            FieldErrorCodes.NO_MATCH);
         return handleExceptionInternal(ex, errorMessage, new HttpHeaders(), status, request);
     }
 
@@ -65,5 +67,11 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     interface FieldNames {
         String USERNAME = "username";
+    }
+
+    interface FieldErrorCodes {
+        String NOT_MODIFIABLE = "NotModifiable";
+        String UNIQUE = "Unique";
+        String NO_MATCH = "NoMatch";
     }
 }

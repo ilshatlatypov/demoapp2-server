@@ -18,8 +18,8 @@ class ErrorMessage {
         errors = new ArrayList<>();
     }
 
-    void addFieldError(String field, Object rejectedValue, String defaultMessage) {
-        errors.add(new FieldError(field, rejectedValue, defaultMessage));
+    void addFieldError(String field, Object rejectedValue, String defaultMessage, String code) {
+        errors.add(new FieldError(field, rejectedValue, defaultMessage, code));
     }
 
     public List<FieldError> getErrors() {
@@ -57,5 +57,6 @@ class ErrorMessage {
         private String field;
         private Object rejectedValue;
         private String message;
+        private String code;
     }
 }
