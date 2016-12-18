@@ -42,6 +42,27 @@ public class TaskRestService {
         return ResponseEntity.created(location).build();
     }
 
+    @RequestMapping(path = "{id}", method = RequestMethod.PUT)
+    public ResponseEntity<Void> update(@PathVariable int id, @Valid @RequestBody TaskDTO taskDTO) {
+        Task existing = taskRepository.findOne(id);
+        if (existing == null) {
+            throw new ResourceNotFoundException();
+        }
+        existing.setTitle(taskDTO.getTitle());
+        taskRepository.save(existing);
+        return ResponseEntity.ok().build();
+    }
+
+    @RequestMapping(path = "{id}", method = RequestMethod.GET)
+    public ResponseEntity<TaskDTO> get(@PathVariable int id) {
+        Task task = taskRepository.findOne(id);
+        if (task == null) {
+            throw new ResourceNotFoundException();
+        }
+        TaskDTO dto = TaskDTO.fromTask(task);
+        return ResponseEntity.ok(dto);
+    }
+
     @RequestMapping(path = "{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable int id) {
         if (!taskRepository.exists(id)) {
