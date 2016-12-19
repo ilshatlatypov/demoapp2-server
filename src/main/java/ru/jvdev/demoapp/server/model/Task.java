@@ -9,9 +9,11 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
+@EqualsAndHashCode(exclude = "assignee")
 public class Task {
 
     @Id

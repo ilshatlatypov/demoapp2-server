@@ -11,9 +11,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
+@EqualsAndHashCode(exclude = "tasks")
 public class Employee {
     @Id
     @GeneratedValue
@@ -28,7 +30,7 @@ public class Employee {
     @OneToOne(optional = false, cascade = CascadeType.ALL)
     private User user;
 
-    @OneToMany
+    @OneToMany(mappedBy = "assignee")
     private Set<Task> tasks;
 
     public String getFullname() {
