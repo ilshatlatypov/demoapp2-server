@@ -39,8 +39,8 @@ public class TaskDTOConverter {
         Task task = new Task();
         task.setTitle(dto.getTitle());
         task.setDueDate(dto.getDueDate());
-        Integer employeeId = dto.getAssigneeId();
-        if (employeeId != null) {
+        int employeeId = dto.getAssigneeId();
+        if (employeeId > 0) {
             task.setAssignee(findEmployeeOr404(employeeId));
         } else {
             task.setAssignee(null);

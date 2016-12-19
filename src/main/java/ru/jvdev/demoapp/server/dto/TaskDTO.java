@@ -19,5 +19,5 @@ public class TaskDTO {
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate dueDate;
-    private Integer assigneeId;
+    private int assigneeId;
 }
