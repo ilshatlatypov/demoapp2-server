@@ -1,5 +1,7 @@
 package ru.jvdev.demoapp.server.model;
 
+import java.time.LocalDate;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,6 +18,7 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     private String title;
+    private LocalDate dueDate;
     @ManyToOne
     private Employee assignee;
 

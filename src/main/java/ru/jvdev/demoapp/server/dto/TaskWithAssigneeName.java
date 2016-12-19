@@ -1,6 +1,11 @@
 package ru.jvdev.demoapp.server.dto;
 
-import ru.jvdev.demoapp.server.model.Task;
+import java.time.LocalDate;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 
 import lombok.Data;
 
@@ -12,15 +17,8 @@ import lombok.Data;
 public class TaskWithAssigneeName {
     private int id;
     private String title;
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDate dueDate;
     private String assigneeName;
-
-    public static TaskWithAssigneeName fromTask(Task task) {
-        TaskWithAssigneeName dto = new TaskWithAssigneeName();
-        dto.setId(task.getId());
-        dto.setTitle(task.getTitle());
-        if (task.getAssignee() != null) {
-            dto.setAssigneeName(task.getAssignee().getFullname());
-        }
-        return dto;
-    }
 }

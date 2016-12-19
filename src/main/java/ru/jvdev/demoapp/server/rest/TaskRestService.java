@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +16,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import ru.jvdev.demoapp.server.dtoconverter.TaskDTOConverter;
 import ru.jvdev.demoapp.server.dto.TaskDTO;
 import ru.jvdev.demoapp.server.dto.TaskWithAssigneeName;
-import ru.jvdev.demoapp.server.model.Employee;
 import ru.jvdev.demoapp.server.model.Task;
-import ru.jvdev.demoapp.server.repository.EmployeeRepository;
 import ru.jvdev.demoapp.server.repository.TaskRepository;
 
 import lombok.NonNull;
@@ -34,19 +32,12 @@ public class TaskRestService {
 
     @NonNull
     private final TaskRepository taskRepository;
-    @Nonnull
-    private final EmployeeRepository employeeRepository;
+    @NonNull
+    private final TaskDTOConverter taskDTOConverter;
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<Void> create(@Valid @RequestBody TaskDTO taskDTO) {
-        Task task = new Task();
-        task.setTitle(taskDTO.getTitle());
-
-        int employeeId = taskDTO.getAssigneeId();
-        if (employeeId > 0) {
-            task.setAssignee(findEmployeeOr404(employeeId));
-        }
-
+        Task task = taskDTOConverter.fromDTO(taskDTO);
         Task savedTask = taskRepository.save(task);
         URI location = ServletUriComponentsBuilder
             .fromCurrentRequest().path("/{id}")
@@ -55,30 +46,15 @@ public class TaskRestService {
         return ResponseEntity.created(location).build();
     }
 
-    private Employee findEmployeeOr404(int employeeId) {
-        Employee employee = employeeRepository.findOne(employeeId);
-        if (employee == null) {
-            throw new ResourceNotFoundException("Cannot find employee with id " + employeeId);
-        }
-        return employee;
-    }
-
     @RequestMapping(path = "{id}", method = RequestMethod.PUT)
     public ResponseEntity<Void> update(@PathVariable int id, @Valid @RequestBody TaskDTO taskDTO) {
         Task existing = taskRepository.findOne(id);
         if (existing == null) {
             throw new ResourceNotFoundException();
         }
-        existing.setTitle(taskDTO.getTitle());
-
-        int employeeId = taskDTO.getAssigneeId();
-        if (employeeId > 0) {
-            existing.setAssignee(findEmployeeOr404(employeeId));
-        } else {
-            existing.setAssignee(null);
-        }
-
-        taskRepository.save(existing);
+        Task updated = taskDTOConverter.fromDTO(taskDTO);
+        updated.setId(existing.getId());
+        taskRepository.save(updated);
         return ResponseEntity.ok().build();
     }
 
@@ -88,7 +64,7 @@ public class TaskRestService {
         if (task == null) {
             throw new ResourceNotFoundException();
         }
-        TaskDTO dto = TaskDTO.fromTask(task);
+        TaskDTO dto = taskDTOConverter.toDTO(task);
         return ResponseEntity.ok(dto);
     }
 
@@ -96,7 +72,7 @@ public class TaskRestService {
     public ResponseEntity<List<TaskWithAssigneeName>> list() {
         List<Task> tasks = taskRepository.findAll();
         List<TaskWithAssigneeName> taskDTOs = tasks.stream()
-            .map(TaskWithAssigneeName::fromTask)
+            .map(taskDTOConverter::toDTOWithAssigneeName)
             .collect(Collectors.toList());
         return ResponseEntity.ok(taskDTOs);
     }
