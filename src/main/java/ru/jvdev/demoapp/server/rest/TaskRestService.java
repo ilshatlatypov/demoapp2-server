@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import ru.jvdev.demoapp.server.dtoconverter.TaskDTOConverter;
 import ru.jvdev.demoapp.server.dto.TaskDTO;
 import ru.jvdev.demoapp.server.dto.TaskWithAssigneeName;
+import ru.jvdev.demoapp.server.dtoconverter.TaskDTOConverter;
 import ru.jvdev.demoapp.server.model.Task;
 import ru.jvdev.demoapp.server.repository.TaskRepository;
 
