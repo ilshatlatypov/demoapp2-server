@@ -1,6 +1,8 @@
 package ru.jvdev.demoapp.server.rest;
 
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.validation.Valid;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import ru.jvdev.demoapp.server.dto.TaskDTO;
+import ru.jvdev.demoapp.server.dto.TaskWithAssigneeName;
 import ru.jvdev.demoapp.server.model.Employee;
 import ru.jvdev.demoapp.server.model.Task;
 import ru.jvdev.demoapp.server.repository.EmployeeRepository;
@@ -87,6 +90,15 @@ public class TaskRestService {
         }
         TaskDTO dto = TaskDTO.fromTask(task);
         return ResponseEntity.ok(dto);
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<TaskWithAssigneeName>> list() {
+        List<Task> tasks = taskRepository.findAll();
+        List<TaskWithAssigneeName> taskDTOs = tasks.stream()
+            .map(TaskWithAssigneeName::fromTask)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(taskDTOs);
     }
 
     @RequestMapping(path = "{id}", method = RequestMethod.DELETE)

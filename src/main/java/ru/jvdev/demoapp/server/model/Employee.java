@@ -30,4 +30,8 @@ public class Employee {
 
     @OneToMany
     private Set<Task> tasks;
+
+    public String getFullname() {
+        return firstname + " " + lastname;
+    }
 }
