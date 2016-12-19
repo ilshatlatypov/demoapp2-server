@@ -29,5 +29,5 @@ public class Employee {
     private User user;
 
     @OneToMany
-    private Set<Task> task;
+    private Set<Task> tasks;
 }

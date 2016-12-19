@@ -2,6 +2,8 @@ package ru.jvdev.demoapp.server.rest;
 
 import java.net.URI;
 import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import ru.jvdev.demoapp.server.dto.EmployeeDTO;
+import ru.jvdev.demoapp.server.dto.EmployeeWithTasksAmount;
 import ru.jvdev.demoapp.server.dto.PasswordDTO;
 import ru.jvdev.demoapp.server.model.Employee;
 import ru.jvdev.demoapp.server.model.Role;
@@ -98,6 +101,15 @@ public class EmployeeRestService {
         }
         EmployeeDTO dto = EmployeeDTO.fromEmployee(employee);
         return ResponseEntity.ok(dto);
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<EmployeeWithTasksAmount>> list() {
+        List<Employee> employees = employeeRepository.findAll();
+        List<EmployeeWithTasksAmount> employeeDTOs = employees.stream()
+            .map(EmployeeWithTasksAmount::fromEmployee)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(employeeDTOs);
     }
 
     @RequestMapping(path = "{id}", method = RequestMethod.DELETE)
